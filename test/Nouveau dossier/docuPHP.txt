@@ -1,0 +1,3 @@
+https://www.php.net/manual/fr/features.file-upload.multiple.php;
+https://stackoverflow.com/questions/2704314/multiple-file-upload-in-php;
+https://makitweb.com/multiple-files-upload-at-once-with-php/;

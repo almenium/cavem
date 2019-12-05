@@ -1,0 +1,76 @@
+<?php require_once "debug.php" ?>
+
+<?php
+if (!empty($_POST)) {
+
+    $errors = array();
+
+    if (empty($_POST['registerNom']) || !preg_match('/^[a-zA-Z]+$/', $_POST['registerNom'])) {
+        $errors['registerNom'] = "Votre nom n'est pas valide [Utilisez les lettres a - z | A - Z]";
+    }
+
+    if (empty($_POST['registerPre']) || !preg_match('/^[a-zA-Z]+$/', $_POST['registerPre'])) {
+        $errors['registerPre'] = "Votre prénom n'est pas valide [Utilisez les lettres a - z | A - Z]";
+    }
+
+    if (empty($_POST['registerMail']) || $_POST['registerMail'] != $_POST['registerMail2'] || !filter_var($_POST['registerMail'], FILTER_VALIDATE_EMAIL)) {
+        $errors['registerMail'] = "Veuillez entrez une adresse email identique / valide";
+    }
+
+    if (empty($_POST['registerPassword']) || $_POST['registerPassword'] != $_POST['registerPassword2']) {
+        $errors['registerPassword'] = "Veuillez entrez un mot de passe identique";
+    }
+
+    if (empty($_POST['registerChild']) || !preg_match('/^[0-9]+$/', $_POST['registerChild'])) {
+        $errors['registerChild'] = "Veuillez entrez uniquement des chiffres";
+    }
+
+    if (empty($_POST['registerCountry'])) {
+        $errors['registerCountry'] = "Veuillez entrez votre pays d'origine";
+    }
+
+    if (empty($_POST['registerDate'])) {
+        $errors['registerDate'] = "Veuillez entrez votre date de naissance";
+    }
+
+    if (empty($_POST['registerCentre']) || !preg_match('/^[a-zA-Z]+$/', $_POST['registerCentre'])) {
+        $errors['registerCentre'] = "Veuillez entrez un centre d'intérêt valide [Utilisez les lettres a - z | A - Z]";
+    }
+
+
+    if (empty($errors)) {
+
+        require 'db.php';
+        $pdo = connectDatabase();
+
+        $req = $pdo->prepare("INSERT INTO internaute
+        FROM INT_NOM = ?, INT_PRE = ?, INT_LOGIN = ?, INT_PASS = ?, INT_ADRE = ?, INT_ENF = ?, INT_PAYS = ?, INT_DNAISS = ?");
+        $password = password_hash($_POST['registerPassword'], PASSWORD_BCRYPT);
+
+        $req->execute([
+            $_POST['registerNom'],
+            $_POST['registerPre'],
+            $_POST['registerMail'],
+            $password,
+            $_POST['registerAdress'],
+            $_POST['registerChild'],
+            $_POST['registerCountry'],
+            $_POST['registerDate'],
+        ]);
+        $_SESSION['flash']['success'] = 'Un email de confirmation vous a été envoyé pour valider votre compte';
+        header('Location: login.php');
+        exit();
+    }
+}
+?>
+
+<?php if (!empty($errors)) : ?>
+    <div class="alert alert-danger">
+        <p>Vous n'avez pas rempli le formulaire correctement</p>
+        <ul>
+            <?php foreach ($errors as $error) : ?>
+                <li><?= $error; ?></li>
+            <?php endforeach; ?>
+        </ul>
+    </div>
+<?php endif; ?>
